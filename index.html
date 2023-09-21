@@ -78,7 +78,39 @@
 
         }
     </style>
-    <script type="module">
+
+</head>
+
+<body>
+    <!-- important
+    1. enumerated attribute - draggable="true" 
+    2. Drag Events -
+        a. ondragstart
+        b. ondragOver
+        c. Ondrop
+        d. ondragend
+    3. Drag's data - 
+        ~ e.dataTransfer.setData("text/plain", ev.target.innerText)
+        ~ e.dataTransfer.getData("text/plain")
+    4. Drop Effect -  
+        ~ ev.dataTransfer.dropEffect = "copy/move/link"
+        ~ ev.dataTransfer.effectAllowed = "copy/move/link";
+-->
+    <main>
+        <section>
+            <input id="input" aria-label="input box" type="text" placeholder="Enter a task" />
+            <button id="button" onclick="add()">ADD</button>
+        </section>
+        <section>
+            <div id="firstBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+            </div>
+            <div id="secondBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+
+            </div>
+        </section>
+    </main>
+
+    <script>
         let ls = null;
         if (window.localStorage && localStorage.getItem("tasks")) {
             ls = localStorage.getItem("tasks")
@@ -152,38 +184,6 @@
 
         renderTasks()
     </script>
-</head>
-
-<body>
-    <!-- important
-    1. enumerated attribute - draggable="true" 
-    2. Drag Events -
-        a. ondragstart
-        b. ondragOver
-        c. Ondrop
-        d. ondragend
-    3. Drag's data - 
-        ~ e.dataTransfer.setData("text/plain", ev.target.innerText)
-        ~ e.dataTransfer.getData("text/plain")
-    4. Drop Effect -  
-        ~ ev.dataTransfer.dropEffect = "copy/move/link"
-        ~ ev.dataTransfer.effectAllowed = "copy/move/link";
--->
-    <main>
-        <section>
-            <input id="input" aria-label="input box" type="text" placeholder="Enter a task" />
-            <button id="button" onclick="add()">ADD</button>
-        </section>
-        <section>
-            <div id="firstBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
-            </div>
-            <div id="secondBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
-
-            </div>
-        </section>
-    </main>
-
-
 </body>
 
 </html>
