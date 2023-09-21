@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>drag n drop with inputbox</title>
+    <title>drag n drop with localstorage</title>
     <style>
         * {
             margin: 0;
@@ -78,7 +78,16 @@
 
         }
     </style>
-    <script>
+    <script type="module">
+        let ls = null;
+        if (window.localStorage && localStorage.getItem("tasks")) {
+            ls = localStorage.getItem("tasks")
+        }
+        const taskList = ls ? JSON.parse(ls) : [];
+
+
+
+
         function dragstart_handle(e) {
             e.dataTransfer.setData("text/plain", e.target.id);
             e.dataTransfer.effectAllowed = "move"
@@ -96,15 +105,23 @@
         function add() {
             const input = document.getElementById("input");
             const firstBox = document.getElementById("firstBox");
+
             const value = input.value;
+
             const task = document.createElement("p")
             task.draggable = true
             task.ondragstart = dragstart_handle;
             task.ondragover = dragover_handler;
             task.innerText = value;
             task.id = value.trim().replace(" ", "")
+
             firstBox.appendChild(task)
+
+            taskList.push(value);
+            localStorage.setItem("tasks", JSON.stringify(taskList))
+
             input.value = ""
+
         }
 
         window.addEventListener("keydown", function (event) {
@@ -113,6 +130,27 @@
                 document.getElementById("button").click()
             }
         })
+
+        function renderTasks() {
+            const firstBox = document.getElementById("firstBox");
+            const fragment = document.createDocumentFragment();
+            taskList.map((task) => {
+                const item = document.createElement("p")
+                item.draggable = true
+                item.ondragstart = dragstart_handle;
+                item.ondragover = dragover_handler;
+                item.innerText = task;
+                item.id = task.trim().replace(" ", "")
+                fragment.appendChild(item)
+
+            })
+            firstBox.appendChild(fragment)
+            console.log("render")
+
+
+        }
+
+        renderTasks()
     </script>
 </head>
 
@@ -144,6 +182,8 @@
             </div>
         </section>
     </main>
+
+
 </body>
 
 </html>
