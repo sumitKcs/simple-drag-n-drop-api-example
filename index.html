@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>simple drag n drop example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            color: grey;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            column-gap: 2rem;
+        }
+
+        section {
+            border: 2px dotted blue;
+            padding: 1rem;
+            height: 50vh;
+            width: 20vw;
+            display: flex;
+            justify-content: flex-start;
+            flex-direction: column;
+            row-gap: 1rem;
+        }
+
+        p {
+            text-align: center;
+            border: 2px solid yellow;
+            padding: .5rem;
+
+        }
+    </style>
+    <script>
+        function dragstart_handle(e) {
+            e.dataTransfer.setData("text/plain", e.target.id);
+            e.dataTransfer.effectAllowed = "move"
+        }
+        function dragover_handler(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+
+        }
+        function drop_handler(e) {
+            e.preventDefault();
+            let data = e.dataTransfer.getData("text/plain");
+            e.target.appendChild(document.getElementById(data))
+        }
+    </script>
+</head>
+
+<body>
+    <!-- important
+    1. enumerated attribute - draggable="true" 
+    2. Drag Events -
+        a. ondragstart
+        b. ondragOver
+        c. Ondrop
+        d. ondragend
+    3. Drag's data - 
+        ~ e.dataTransfer.setData("text/plain", ev.target.innerText)
+        ~ e.dataTransfer.getData("text/plain")
+    4. Drop Effect -  
+        ~ ev.dataTransfer.dropEffect = "copy/move/link"
+        ~ ev.dataTransfer.effectAllowed = "copy/move/link";
+-->
+    <main>
+        <section ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+            <p id="item1" draggable="true" ondragstart="dragstart_handle(event)">Item 1</p>
+            <p id="item2" draggable="true" ondragstart="dragstart_handle(event)">Item 2</p>
+            <p id="item3" draggable="true" ondragstart="dragstart_handle(event)">Item 3</p>
+        </section>
+        <section ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+
+        </section>
+    </main>
+</body>
+
+</html>
