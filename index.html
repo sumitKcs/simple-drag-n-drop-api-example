@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>simple drag n drop example</title>
+    <title>drag n drop with inputbox</title>
     <style>
         * {
             margin: 0;
@@ -19,20 +19,31 @@
             display: flex;
             justify-content: center;
             color: grey;
+            font-weight: bold;
         }
 
         main {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            column-gap: 2rem;
+            row-gap: 5rem;
+            width: 100%;
+            height: 100%;
         }
 
         section {
-            border: 2px dotted blue;
-            padding: 1rem;
-            height: 50vh;
+            display: flex;
+            justify-content: center;
+            column-gap: 2rem;
+            width: 50%;
+        }
+
+        section div {
             width: 20vw;
+            height: 50vh;
+            border: .5rem dotted blue;
+            padding: 2rem;
             display: flex;
             justify-content: flex-start;
             flex-direction: column;
@@ -43,6 +54,27 @@
             text-align: center;
             border: 2px solid yellow;
             padding: .5rem;
+
+        }
+
+        button {
+            background-color: rgb(56, 21, 21);
+            padding: .5rem 2rem;
+            border-radius: .5rem;
+        }
+
+        input {
+            padding: .3rem 1rem;
+            border: none;
+            border-radius: .5rem;
+            height: 5vh;
+            width: 60%;
+            font-size: large;
+
+        }
+
+        input:focus {
+            outline: transparent;
 
         }
     </style>
@@ -61,6 +93,26 @@
             let data = e.dataTransfer.getData("text/plain");
             e.target.appendChild(document.getElementById(data))
         }
+        function add() {
+            const input = document.getElementById("input");
+            const firstBox = document.getElementById("firstBox");
+            const value = input.value;
+            const task = document.createElement("p")
+            task.draggable = true
+            task.ondragstart = dragstart_handle;
+            task.ondragover = dragover_handler;
+            task.innerText = value;
+            task.id = value.trim().replace(" ", "")
+            firstBox.appendChild(task)
+            input.value = ""
+        }
+
+        window.addEventListener("keydown", function (event) {
+            if (event.keyCode == 13 && event.target.id == "input") {
+                event.preventDefault();
+                document.getElementById("button").click()
+            }
+        })
     </script>
 </head>
 
@@ -80,13 +132,16 @@
         ~ ev.dataTransfer.effectAllowed = "copy/move/link";
 -->
     <main>
-        <section ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
-            <p id="item1" draggable="true" ondragstart="dragstart_handle(event)">Item 1</p>
-            <p id="item2" draggable="true" ondragstart="dragstart_handle(event)">Item 2</p>
-            <p id="item3" draggable="true" ondragstart="dragstart_handle(event)">Item 3</p>
+        <section>
+            <input id="input" aria-label="input box" type="text" placeholder="Enter a task" />
+            <button id="button" onclick="add()">ADD</button>
         </section>
-        <section ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+        <section>
+            <div id="firstBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+            </div>
+            <div id="secondBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
 
+            </div>
         </section>
     </main>
 </body>
