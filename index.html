@@ -4,12 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>drag n drop with localstorage</title>
+    <title>drag n drop sorting list</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
         }
 
         body {
@@ -18,8 +20,8 @@
             height: 100vh;
             display: flex;
             justify-content: center;
-            color: grey;
-            font-weight: bold;
+            background-color: #352F44;
+
         }
 
         main {
@@ -42,7 +44,7 @@
         section div {
             width: 20vw;
             height: 50vh;
-            border: .5rem dotted blue;
+            border: .5rem dotted rgba(207, 21, 224, 0.5);
             padding: 2rem;
             display: flex;
             justify-content: flex-start;
@@ -50,17 +52,24 @@
             row-gap: 1rem;
         }
 
-        p {
+        .draggable {
             text-align: center;
-            border: 2px solid yellow;
+            border: 2px solid rgba(255, 255, 0, 0.3);
             padding: .5rem;
 
         }
 
+        .dragging {
+            opacity: 0.5;
+        }
+
         button {
-            background-color: rgb(56, 21, 21);
+            background-color: rgba(23, 209, 194, 0.3);
             padding: .5rem 2rem;
             border-radius: .5rem;
+            border: none;
+            font-size: large;
+
         }
 
         input {
@@ -70,7 +79,12 @@
             height: 5vh;
             width: 60%;
             font-size: large;
+            background-color: grey;
 
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         input:focus {
@@ -102,9 +116,9 @@
             <button id="button" onclick="add()">ADD</button>
         </section>
         <section>
-            <div id="firstBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+            <div id="firstBox" class="container">
             </div>
-            <div id="secondBox" ondrop="drop_handler(event)" ondragover="dragover_handler(event)">
+            <div id="secondBox" class="container">
 
             </div>
         </section>
@@ -119,39 +133,92 @@
 
 
 
-
-        function dragstart_handle(e) {
+        function dragstart_handler(e) {
+            let task = document.getElementById(e.target.id)
+            task.classList.add("dragging")
             e.dataTransfer.setData("text/plain", e.target.id);
             e.dataTransfer.effectAllowed = "move"
         }
-        function dragover_handler(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "move";
+        function dragend_handler(e) {
+            let task = document.getElementById(e.target.id)
+            task.classList.remove("dragging")
+        }
+        const containers = document.querySelectorAll(".container")
 
+        containers.forEach(container => {
+            container.addEventListener("dragover", e => {
+                e.preventDefault()
+                e.dataTransfer.dropEffect = "move";
+
+                const afterElement = getDragAfterElement(container, e.clientY)
+                const dragging = document.querySelector(".dragging")
+                console.log(afterElement)
+                if (afterElement == null) {
+                    container.appendChild(dragging)
+                } else {
+                    container.insertBefore(dragging, afterElement)
+                }
+            }
+            )
+        });
+
+        // function getDragAfterElement(container, y) {
+        //     const draggablElements = [...container.querySelectorAll(".draggable:not(.dragging)")]
+
+        //     return draggablElements.reduce((closest, child) => {
+        //         const box = child.getBoundingClientRect()
+        //         const offset = y - box.top - box.height / 2
+        //         if (offset < 0 && offset > closest.offset) {
+        //             return { offset: offset, element: child }
+        //         } else return closest
+        //     }, { offset: Number.NEGATIVE_INFINITY }).element
+        // }
+
+        function getDragAfterElement(container, mouseY) {
+            const draggableElements = Array.from(container.querySelectorAll(".draggable:not(.dragging)"));
+
+            let closestElement = null;
+            let closestDistance = Infinity;
+
+            for (const element of draggableElements) {
+                const rect = element.getBoundingClientRect();
+                const elementCenterY = rect.top + rect.height / 2;
+                const distance = Math.abs(mouseY - elementCenterY);
+
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestElement = element;
+                }
+            }
+
+            return closestElement;
         }
-        function drop_handler(e) {
-            e.preventDefault();
-            let data = e.dataTransfer.getData("text/plain");
-            e.target.appendChild(document.getElementById(data))
-        }
+
+
+
         function add() {
             const input = document.getElementById("input");
             const firstBox = document.getElementById("firstBox");
 
             const value = input.value;
+            if (value) {
+                const task = document.createElement("p")
+                task.classList.add("draggable")
+                task.draggable = true
+                task.ondragstart = dragstart_handler;
+                task.ondragend = dragend_handler;
+                task.innerText = value;
+                task.id = value.trim().replace(" ", "")
 
-            const task = document.createElement("p")
-            task.draggable = true
-            task.ondragstart = dragstart_handle;
-            task.innerText = value;
-            task.id = value.trim().replace(" ", "")
+                firstBox.appendChild(task)
 
-            firstBox.appendChild(task)
+                taskList.push(value);
+                localStorage.setItem("tasks", JSON.stringify(taskList))
 
-            taskList.push(value);
-            localStorage.setItem("tasks", JSON.stringify(taskList))
+                input.value = ""
+            }
 
-            input.value = ""
+
 
         }
 
@@ -167,8 +234,10 @@
             const fragment = document.createDocumentFragment();
             taskList.map((task) => {
                 const item = document.createElement("p")
+                item.classList.add("draggable")
                 item.draggable = true
-                item.ondragstart = dragstart_handle;
+                item.ondragstart = dragstart_handler;
+                item.ondragend = dragend_handler;
                 item.innerText = task;
                 item.id = task.trim().replace(" ", "")
                 fragment.appendChild(item)
