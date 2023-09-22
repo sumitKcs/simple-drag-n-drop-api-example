@@ -151,9 +151,10 @@
                 e.dataTransfer.dropEffect = "move";
 
                 const afterElement = getDragAfterElement(container, e.clientY)
+                console.log(afterElement)
                 const dragging = document.querySelector(".dragging")
                 console.log(afterElement)
-                if (afterElement == null) {
+                if (afterElement == undefined) {
                     container.appendChild(dragging)
                 } else {
                     container.insertBefore(dragging, afterElement)
@@ -178,14 +179,14 @@
             const draggableElements = Array.from(container.querySelectorAll(".draggable:not(.dragging)"));
 
             let closestElement = null;
-            let closestDistance = Infinity;
+            let closestDistance = Number.NEGATIVE_INFINITY;
 
             for (const element of draggableElements) {
                 const rect = element.getBoundingClientRect();
                 const elementCenterY = rect.top + rect.height / 2;
-                const distance = Math.abs(mouseY - elementCenterY);
+                const distance = (mouseY - elementCenterY);
 
-                if (distance < closestDistance) {
+                if (distance < 0 && distance > closestDistance) {
                     closestDistance = distance;
                     closestElement = element;
                 }
