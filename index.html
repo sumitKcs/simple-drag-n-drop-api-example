@@ -143,7 +143,6 @@
             const task = document.createElement("p")
             task.draggable = true
             task.ondragstart = dragstart_handle;
-            task.ondragover = dragover_handler;
             task.innerText = value;
             task.id = value.trim().replace(" ", "")
 
@@ -170,7 +169,6 @@
                 const item = document.createElement("p")
                 item.draggable = true
                 item.ondragstart = dragstart_handle;
-                item.ondragover = dragover_handler;
                 item.innerText = task;
                 item.id = task.trim().replace(" ", "")
                 fragment.appendChild(item)
