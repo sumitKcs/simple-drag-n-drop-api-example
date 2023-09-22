@@ -125,11 +125,16 @@
     </main>
 
     <script>
-        let ls = null;
-        if (window.localStorage && localStorage.getItem("tasks")) {
-            ls = localStorage.getItem("tasks")
+        let ls_left = null;
+        let ls_right = null;
+        if (window.localStorage) {
+            if (localStorage.getItem("tasksLeft"))
+                ls_left = localStorage.getItem("tasksLeft")
+            if (localStorage.getItem("tasksRight"))
+                ls_right = localStorage.getItem("tasksRight")
         }
-        const taskList = ls ? JSON.parse(ls) : [];
+        let taskListLeft = ls_left ? JSON.parse(ls_left) : [];
+        let taskListRight = ls_right ? JSON.parse(ls_right) : [];
 
 
 
@@ -151,17 +156,54 @@
                 e.dataTransfer.dropEffect = "move";
 
                 const afterElement = getDragAfterElement(container, e.clientY)
-                console.log(afterElement)
+
                 const dragging = document.querySelector(".dragging")
-                console.log(afterElement)
+
                 if (afterElement == undefined) {
                     container.appendChild(dragging)
+
                 } else {
                     container.insertBefore(dragging, afterElement)
                 }
             }
             )
         });
+
+        // saving both container items to localstorage
+        containers.forEach(container => {
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const draggables = [...container.querySelectorAll('.draggable')]
+                const values = draggables.map(draggable => {
+                    return draggable.innerText
+                })
+                console.log(values)
+                if (container.id == "firstBox") {
+                    console.log("left")
+                    taskListLeft = [...values]
+                    localStorage.setItem("tasksLeft", JSON.stringify([...values]))
+                    const rightBox = document.getElementById("secondBox")
+                    const rightBoxDraggables = [...rightBox.querySelectorAll(".draggable")]
+                    const rightBoxDraggableValues = rightBoxDraggables.map(rightBoxDraggable => {
+                        return rightBoxDraggable.innerText
+                    })
+                    taskListRight = [...rightBoxDraggableValues]
+                    localStorage.setItem("tasksRight", JSON.stringify([...rightBoxDraggableValues]))
+                }
+                else {
+                    console.log("right")
+                    taskListRight = [...values]
+                    localStorage.setItem("tasksRight", JSON.stringify([...values]))
+                    const leftBox = document.getElementById("firstBox")
+                    const leftBoxDraggables = [...leftBox.querySelectorAll(".draggable")]
+                    const leftBoxDraggableValues = leftBoxDraggables.map(leftBoxDraggable => {
+                        return leftBoxDraggable.innerText
+                    })
+                    taskListLeft = [...leftBoxDraggableValues]
+                    localStorage.setItem("tasksLeft", JSON.stringify([...leftBoxDraggableValues]))
+                }
+            })
+        })
 
         // function getDragAfterElement(container, y) {
         //     const draggablElements = [...container.querySelectorAll(".draggable:not(.dragging)")]
@@ -203,22 +245,11 @@
 
             const value = input.value;
             if (value) {
-                const task = document.createElement("p")
-                task.classList.add("draggable")
-                task.draggable = true
-                task.ondragstart = dragstart_handler;
-                task.ondragend = dragend_handler;
-                task.innerText = value;
-                task.id = value.trim().replace(" ", "")
-
-                firstBox.appendChild(task)
-
-                taskList.push(value);
-                localStorage.setItem("tasks", JSON.stringify(taskList))
-
-                input.value = ""
+                taskListLeft.push(value)
+                localStorage.setItem("tasksLeft", JSON.stringify(taskListLeft))
+                renderTasks()
             }
-
+            input.value = ""
 
 
         }
@@ -232,8 +263,9 @@
 
         function renderTasks() {
             const firstBox = document.getElementById("firstBox");
+            const secondBox = document.getElementById("secondBox");
             const fragment = document.createDocumentFragment();
-            taskList.map((task) => {
+            taskListLeft.map((task) => {
                 const item = document.createElement("p")
                 item.classList.add("draggable")
                 item.draggable = true
@@ -244,8 +276,22 @@
                 fragment.appendChild(item)
 
             })
+            firstBox.innerHTML = ""
             firstBox.appendChild(fragment)
-            console.log("render")
+
+            taskListRight.map((task) => {
+                const item = document.createElement("p")
+                item.classList.add("draggable")
+                item.draggable = true
+                item.ondragstart = dragstart_handler;
+                item.ondragend = dragend_handler;
+                item.innerText = task;
+                item.id = task.trim().replace(" ", "")
+                fragment.appendChild(item)
+
+            })
+            secondBox.innerHTML = ""
+            secondBox.appendChild(fragment)
 
 
         }
